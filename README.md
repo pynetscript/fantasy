@@ -157,16 +157,16 @@ Finally the script will:
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           24/03/2018 15:47:48                               |
-| Script ended:             24/03/2018 15:49:45                               |
-| Script duration (h:m:s):  0:01:57                                           |
+| Script started:           05/04/2018 21:31:43                               |
+| Script ended:             05/04/2018 21:32:14                               |
+| Script duration (h:m:s):  0:00:30                                           |
 +-----------------------------------------------------------------------------+
 ```
 
 # Successful demo
 
 ```
-aleks@acorp:~/reality$ ./multirunner.py router/7200.json router/multi.txt 
+aleks@acorp:~/fantasy$ ./cmdrunner.py router/7200.json router/cmd.txt 
 ===============================================================================
 Username: a.lambreca
 Password: 
@@ -246,7 +246,7 @@ Building configuration...
 - R3 (2001:db8:acab:a001::130): This router is configured correctly.
 
 ```
-aleks@acorp:~/reality$ ./multirunner.py router/7200.json router/multi.txt 
+aleks@acorp:~/fantasy$ ./cmdrunner.py router/7200.json router/cmd.txt  
 ===============================================================================
 Username: a.lambreca
 Password: 
