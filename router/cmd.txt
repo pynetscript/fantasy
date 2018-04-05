@@ -1,0 +1,2 @@
+do sh ip int b | i up
+do sh clock

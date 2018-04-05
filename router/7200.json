@@ -1,0 +1,3 @@
+[{"device_type":"cisco_ios","ip":"r1.a-corp.com"},
+{"device_type":"cisco_ios","ip":"192.168.1.120"},
+{"device_type":"cisco_ios","ip":"2001:db8:acab:a001::130"}]
