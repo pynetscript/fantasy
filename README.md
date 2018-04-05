@@ -1,17 +1,18 @@
-[![Build Status](https://travis-ci.org/pynetscript/reality.svg?branch=master)](https://travis-ci.org/pynetscript/reality)
+[![Build Status](https://travis-ci.org/pynetscript/fantasy.svg?branch=master)](https://travis-ci.org/pynetscript/fantasy)
 [![GitHub release](https://img.shields.io/badge/version-1.1-blue.svg)](https://github.com/pynetscript/reality)
-[![license](https://img.shields.io/github/license/pynetscript/reality.svg)](https://github.com/pynetscript/reality/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/pynetscript/fantasy.svg)](https://github.com/pynetscript/fantasy/blob/master/LICENSE)
 
-# reality
+# fantasy
 
 ```
 Written by:           Aleks Lambreca
-Creation date:        24/03/2018
-Last modified date:   27/03/2018
+Creation date:        05/04/2018
+Last modified date:   05/04/2018
 Version:              v1.1
 
 Script use:           SSH into Cisco IOS devices and run config/show commands
-                      Note: Supports both IPv4 and IPv6 addresses and FQDNs
+                      Note: Commands are all at once (not one by one)
+                            Supports both IPv4 and IPv6 addresses and FQDNs
                             Both Py2 and Py3 compatible
                       The script needs 3 arguments to work:
                       - 1st argument: cmdrunner.py
@@ -45,9 +46,9 @@ Script output:        Cisco IOS command output
 # Installation
 
 ```
-mkdir /reality/ && cd /reality/
+mkdir /fantasy/ && cd /fantasy/
 sudo apt-get install -y git
-git clone -b https://github.com/pynetscript/reality.git . 
+git clone -b https://github.com/pynetscript/fantasy.git . 
 pip install -r requirements.txt
 ```
 
@@ -107,8 +108,9 @@ Create a txt file with the config/show commands that you want to run on the devi
 Note: Show commands need "do" in the front.
 
 ```
-do sh ip int b | i up
-do sh clock
+router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+ passive-interface default
 ```
 
 # 1st argument (cmdrunner.py)
@@ -164,89 +166,7 @@ Finally the script will:
 # Successful demo
 
 ```
-aleks@acorp:~/reality$ python3 cmdrunner.py router/7200.json router/cmd.txt
-===============================================================================
-Username: a.lambreca
-Password: 
-Retype password: 
-===============================================================================
-Connecting to device: r1.a-corp.com
--------------------------------------------------------------------------------
->> do sh ip int b | i up
 
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R1(config)#do sh ip int b | i up
-FastEthernet0/0        192.168.1.110   YES NVRAM  up                    up      
-R1(config)#end
-R1#
--------------------------------------------------------------------------------
->> do sh clock
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R1(config)#do sh clock
-*15:48:12.867 UTC Sat Mar 24 2018
-R1(config)#end
-R1#
--------------------------------------------------------------------------------
-Warning: Attempting to overwrite an NVRAM configuration previously written
-by a different version of the system image.
-Overwrite the previous NVRAM configuration?[confirm]
-===============================================================================
-Connecting to device: 192.168.1.120
--------------------------------------------------------------------------------
->> do sh ip int b | i up
-
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R2(config)#do sh ip int b | i up
-FastEthernet0/0        192.168.1.120   YES NVRAM  up                    up      
-Loopback0              10.2.0.1        YES NVRAM  up                    up      
-R2(config)#end
-R2#
--------------------------------------------------------------------------------
->> do sh clock
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R2(config)#do sh clock
-*15:48:52.451 UTC Sat Mar 24 2018
-R2(config)#end
-R2#
--------------------------------------------------------------------------------
-Warning: Attempting to overwrite an NVRAM configuration previously written
-by a different version of the system image.
-Overwrite the previous NVRAM configuration?[confirm]
-===============================================================================
-Connecting to device: 2001:db8:acab:a001::130
--------------------------------------------------------------------------------
->> do sh ip int b | i up
-
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R3(config)#do sh ip int b | i up
-FastEthernet0/0        192.168.1.130   YES NVRAM  up                    up      
-R3(config)#end
-R3#
--------------------------------------------------------------------------------
->> do sh clock
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R3(config)#do sh clock
-*15:49:29.439 UTC Sat Mar 24 2018
-R3(config)#end
-R3#
--------------------------------------------------------------------------------
-Warning: Attempting to overwrite an NVRAM configuration previously written
-by a different version of the system image.
-Overwrite the previous NVRAM configuration?[confirm]
-===============================================================================
-+-----------------------------------------------------------------------------+
-|                              SCRIPT STATISTICS                              |
-|-----------------------------------------------------------------------------|
-| Script started:           24/03/2018 15:47:48                               |
-| Script ended:             24/03/2018 15:49:45                               |
-| Script duration (h:m:s):  0:01:57                                           |
-+-----------------------------------------------------------------------------+
 ```
 
 # Unsuccessful demo
@@ -256,55 +176,11 @@ Overwrite the previous NVRAM configuration?[confirm]
 - R3 (2001:db8:acab:a001::130): This router is configured correctly.
 
 ```
-aleks@acorp:~/reality$ python3 cmdrunner.py router/7200.json router/cmd.txt
-===============================================================================
-Username: a.lambreca
-Password: 
-Retype password: 
-===============================================================================
-Connecting to device: r1.a-corp.com
--------------------------------------------------------------------------------
-r1.a-corp.com >> Authentication error
-===============================================================================
-Connecting to device: 192.168.1.120
--------------------------------------------------------------------------------
-192.168.1.120 >> TCP/22 connectivity error
-===============================================================================
-Connecting to device: 2001:db8:acab:a001::130
--------------------------------------------------------------------------------
->> do sh ip int b | i up
 
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R3(config)#do sh ip int b | i up
-FastEthernet0/0        192.168.1.130   YES NVRAM  up                    up      
-R3(config)#end
-R3#
--------------------------------------------------------------------------------
->> do sh clock
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R3(config)#do sh clock
-*15:53:35.719 UTC Sat Mar 24 2018
-R3(config)#end
-R3#
--------------------------------------------------------------------------------
-Building configuration...
-
-===============================================================================
-+-----------------------------------------------------------------------------+
-|                              SCRIPT STATISTICS                              |
-|-----------------------------------------------------------------------------|
-| Script started:           24/03/2018 15:52:52                               |
-| Script ended:             24/03/2018 15:53:49                               |
-| Script duration (h:m:s):  0:00:56                                           |
-+-----------------------------------------------------------------------------+
 ```
 
 # cmdrunner.log
 
 ```
-24/03/2018 15:52:56 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
-Authentication failed.
-24/03/2018 15:53:14 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
+
 ```
