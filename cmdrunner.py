@@ -7,26 +7,27 @@
 # Version:              v1.1
 #
 # Script use:           SSH into Cisco IOS devices and run config/show commands
-#                       Note: Commands are run all at once (not one by one)
+#                       Note: Commands are send all at once (not one by one)
 #                             Supports both IPv4 and IPv6 addresses and FQDNs
 #                             Both Py2 and Py3 compatible
 #                       The script needs 3 arguments to work:
-#                       - 1st argument: multirunner.py
+#                       - 1st argument: cmdrunner.py
 #                       - 2nd argument: /x.json
 #                       - 3rd argument: /x.txt
 #                       Note: A full command looks like:
-#                       ./multirunner.py router/7200.json router/multi.txt
+#                       ./cmdrunner.py router/7200.json router/cmd.txt
 #
 # Script input:         SSH Username/Password
 #                       Specify devices as a .json file
 #                       Note: See "router/7200.json" as an example
 #                       Specify show/config commands as a .txt file
 #                       Note: Show commands need "do" in the front
-#                            See "router/multi.txt" as an example
+#                            See "router/cmd.txt" as an example
 #
 # Script output:        Cisco IOS command output
 #                       Statistics
-#                       Erros in multirunner.log
+#                       Erros in cmdrunner.log
+#                       Travis CI build notification to Slack private channel
 ###############################################################################
 
 
@@ -55,7 +56,7 @@ import tools
 
 # Logs on the working directory on the file named cmdrunner.log
 logger = logging.getLogger('__name__')
-hdlr = logging.FileHandler('multirunner.log')
+hdlr = logging.FileHandler('cmdrunner.log')
 formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s', datefmt='%d/%m/%Y %H:%M:%S')
 hdlr.setFormatter(formatter)
 logger.addHandler(hdlr)
@@ -105,17 +106,19 @@ def processor(device, output_q):
         # SSH into each device from "x.json" (2nd argument).
         connection = netmiko.ConnectHandler(**device)
 
-        # Get device's hostname
+        # Get device's hostname.
         hostname = connection.base_prompt
+        # Get device's "ip" from .json
         json_ip = (device['ip'])
 
         # Send all commands at once from "x.txt" to each device (3rd argument).
-
+        # Put into "output". 
         output = ('') + "\n"
         output += connection.send_config_set(commands) + "\n"
         output += ('-'*79) + "\n"
 
         # Save running-config to startup-config.
+        # Put into "output". 
         save_conf = connection.send_command_timing('write memory')
         if 'Overwrite the previous NVRAM configuration?[confirm]' in save_conf:
             save_conf = connection.send_command_timing('')
@@ -127,7 +130,9 @@ def processor(device, output_q):
         output += (save_conf) + "\n"
         output += ('-'*79) + "\n"
 
+        # Put everything from "output" into "output_dict" in the format "[hostname]  IP".
         output_dict['[' + hostname + ']' + '  ' + json_ip] = output
+        # Put "output_dict" into queue named "output_q".
         output_q.put(output_dict)
 
         # Disconnect SSH session.
@@ -152,10 +157,11 @@ def main():
     # Script start timestamp and formatting
     start_timestamp = datetime.datetime.now()
     start_time = start_timestamp.strftime('%d/%m/%Y %H:%M:%S')
-
+    
+    # Queue used in line 136.
     output_q = Queue(maxsize=40)
 
-    # Use processes and Netmiko to connect to each of the devices. 
+    # Use processes and run the "processor" function. 
     procs = []
     for device in devices:
         my_proc = Process(target=processor, args=(device, output_q))
