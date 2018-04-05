@@ -2,9 +2,9 @@
 
 ###############################################################################
 # Written by:           Aleks Lambreca
-# Creation date:        20/03/2018
+# Creation date:        05/04/2018
 # Last modified date:   05/04/2018
-# Version:              v1.2
+# Version:              v1.1
 #
 # Script use:           SSH into Cisco IOS devices and run config/show commands
 #                       Note: Commands are run all at once (not one by one)
