@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/pynetscript/fantasy.svg?branch=master)](https://travis-ci.org/pynetscript/fantasy)
-[![GitHub release](https://img.shields.io/badge/version-1.1-blue.svg)](https://github.com/pynetscript/reality)
+[![GitHub release](https://img.shields.io/badge/version-1.1-blue.svg)](https://github.com/pynetscript/fantasy)
 [![license](https://img.shields.io/github/license/pynetscript/fantasy.svg)](https://github.com/pynetscript/fantasy/blob/master/LICENSE)
 
 # fantasy
@@ -54,7 +54,7 @@ pip install -r requirements.txt
 
 # .travis.yml
 
-- [Travis CI](https://travis-ci.org/pynetscript/reality)
+- [Travis CI](https://travis-ci.org/pynetscript/fantasy)
 - What language: **Python**
 - What versions: **2.7** , **3.4** , **3.5** , **3.6**
 - What to install: **pip install -r requirements.txt**
