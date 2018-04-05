@@ -166,7 +166,77 @@ Finally the script will:
 # Successful demo
 
 ```
+aleks@acorp:~/reality$ ./multirunner.py router/7200.json router/multi.txt 
+===============================================================================
+Username: a.lambreca
+Password: 
+Retype password: 
+===============================================================================
+Connecting to device: r1.a-corp.com
+-------------------------------------------------------------------------------
+Connecting to device: 192.168.1.120
+-------------------------------------------------------------------------------
+Connecting to device: 2001:db8:acab:a001::130
+-------------------------------------------------------------------------------
+[R2]  192.168.1.120
 
+config term
+Enter configuration commands, one per line.  End with CNTL/Z.
+R2(config)#router ospf 1
+R2(config-router)# network 0.0.0.0 255.255.255.255 area 0
+R2(config-router)# passive-interface default
+R2(config-router)#end
+R2#
+-------------------------------------------------------------------------------
+[R2]  192.168.1.120
+
+>> write memory
+Building configuration...
+[OK]
+-------------------------------------------------------------------------------
+
+[R3]  2001:db8:acab:a001::130
+
+config term
+Enter configuration commands, one per line.  End with CNTL/Z.
+R3(config)#router ospf 1
+R3(config-router)# network 0.0.0.0 255.255.255.255 area 0
+R3(config-router)# passive-interface default
+R3(config-router)#end
+R3#
+-------------------------------------------------------------------------------
+[R3]  2001:db8:acab:a001::130
+
+>> write memory
+Building configuration...
+[OK]
+-------------------------------------------------------------------------------
+
+[R1]  r1.a-corp.com
+
+config term
+Enter configuration commands, one per line.  End with CNTL/Z.
+R1(config)#router ospf 1
+R1(config-router)# network 0.0.0.0 255.255.255.255 area 0
+R1(config-router)# passive-interface default
+R1(config-router)#end
+R1#
+-------------------------------------------------------------------------------
+[R1]  r1.a-corp.com
+
+>> write memory
+Building configuration...
+[OK]
+-------------------------------------------------------------------------------
+
+===============================================================================
++-----------------------------------------------------------------------------+
+|                              SCRIPT STATISTICS                              |
+|-----------------------------------------------------------------------------|
+| Script started:           05/04/2018 21:31:43                               |
+| Script ended:             05/04/2018 21:32:14                               |
+| Script duration (h:m:s):  0:00:30                                           |
++-----------------------------------------------------------------------------+
 ```
 
 # Unsuccessful demo
@@ -176,11 +246,52 @@ Finally the script will:
 - R3 (2001:db8:acab:a001::130): This router is configured correctly.
 
 ```
+aleks@acorp:~/reality$ ./multirunner.py router/7200.json router/multi.txt 
+===============================================================================
+Username: a.lambreca
+Password: 
+Retype password: 
+===============================================================================
+Connecting to device: r1.a-corp.com
+Connecting to device: 192.168.1.120
+Connecting to device: 2001:db8:acab:a001::130
+-------------------------------------------------------------------------------
+192.168.1.120 >> TCP/22 connectivity error
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+r1.a-corp.com >> Authentication error
+-------------------------------------------------------------------------------
+[R3]  2001:db8:acab:a001::130
 
+config term
+Enter configuration commands, one per line.  End with CNTL/Z.
+R3(config)#router ospf 1
+R3(config-router)# network 0.0.0.0 255.255.255.255 area 0
+R3(config-router)# passive-interface default
+R3(config-router)#end
+R3#
+-------------------------------------------------------------------------------
+[R3]  2001:db8:acab:a001::130
+
+>> write memory
+Building configuration...
+[OK]
+-------------------------------------------------------------------------------
+
+===============================================================================
++-----------------------------------------------------------------------------+
+|                              SCRIPT STATISTICS                              |
+|-----------------------------------------------------------------------------|
+| Script started:           05/04/2018 21:28:06                               |
+| Script ended:             05/04/2018 21:28:31                               |
+| Script duration (h:m:s):  0:00:25                                           |
++-----------------------------------------------------------------------------+
 ```
 
 # cmdrunner.log
 
 ```
-
+05/04/2018 21:28:10 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
+Authentication failed.
+05/04/2018 21:28:12 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
 ```
