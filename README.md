@@ -136,22 +136,27 @@ Retype password:
 ```
   
 Then the script will:    
-- Timestamp the date & time the script started in D/M/Y H:M:S format.
-- SSH to the first device in the <2nd_argument> (.json)    
-- Run all the commands in the <3rd argument> (.txt) 
-- Save the running-config to startup-config.  
-- Disconnect the SSH session.  
-
-Errors:
-- If the is an authentication error we will get an error message `R1.a-corp.com >> Authentication error`
-- If the is an connectivity (TCP/22) error we will get an error message `192.168.1.120 >> TCP/22 connectivity error`
-- Errors are logged in the cmdrunner.log
-
-Finally the script will:
-- Repeat the process for all devices in <2nd_argument> (.json) 
-- Timestamp the date & time the script ended in D/M/Y H:M:S format.
-- Subtract start timestamp and end timstamp to get the time (in H:M:S format) of how long the script took to run.
-- Print SCRIPT STATISTICS
+- Run `main()` function:
+  - Timestamp the date & time the script started in D/M/Y H:M:S format
+  - Define a queue with size of 40
+  - Use multiple processors and run the ` processor(device, output_q)` function: 
+    - SSH to all the devices at once in the <2nd_argument> (.json)    
+    - Get devices` hostname.
+    - Get devices` "ip" from .json
+    - Run all the commands at once found in the <3rd argument> (.txt) - put into variable "output".
+    - Save the running-config to startup-config - put into variable "output". 
+    - Put everything from variable "output" into "output_dict" in the format "[hostname]  IP".
+    - Put "output_dict" into queue named "output_q".
+    - Disconnect the SSH sessions.  
+    - Errors:
+      - If the is an authentication error we will get an error message `R1.a-corp.com >> Authentication error`
+      - If the is an connectivity (TCP/22) error we will get an error message `192.168.1.120 >> TCP/22 connectivity error`
+      - Errors are logged in the cmdrunner.log
+  - Makes sure all processes have finished
+  - Uses a queue to pass the output back to the parent process.
+  - Timestamp the date & time the script ended in D/M/Y H:M:S format.
+  - Subtract start timestamp and end timstamp to get the time (in H:M:S format) of how long the script took to run.
+  - Print SCRIPT STATISTICS
 
 ```
 +-----------------------------------------------------------------------------+
