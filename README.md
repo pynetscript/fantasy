@@ -11,7 +11,7 @@ Last modified date:   05/04/2018
 Version:              v1.1
 
 Script use:           SSH into Cisco IOS devices and run config/show commands
-                      Note: Commands are all at once (not one by one)
+                      Note: Commands are send all at once (not one by one)
                             Supports both IPv4 and IPv6 addresses and FQDNs
                             Both Py2 and Py3 compatible
                       The script needs 3 arguments to work:
