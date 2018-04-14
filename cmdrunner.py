@@ -73,13 +73,8 @@ netmiko_ex_time = (netmiko.ssh_exception.NetMikoTimeoutException)
 netmiko_ex_auth = (netmiko.ssh_exception.NetMikoAuthenticationException)
 
 
-# If less than 3 arguments we get an error.
-# If more than 3 arguments we get an error.
-if len(sys.argv) < 3:
-    print('>> Usage: cmdrunner.py /x.json /x.txt')
-    exit()
-
-if len(sys.argv) > 3:
+# If arguments not equal to 3 we get an error.
+if len(sys.argv) != 3:
     print('>> Usage: cmdrunner.py /x.json /x.txt')
     exit()
 
@@ -90,7 +85,8 @@ with open(sys.argv[1]) as dev_file:
 with open(sys.argv[2]) as cmd_file:
     commands = cmd_file.readlines()
 
-
+    
+# Prompt for username and password
 username, password = tools.get_credentials()
 
 
