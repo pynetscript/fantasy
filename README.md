@@ -36,12 +36,9 @@ Script output:        Cisco IOS command output
 
 # Prerequisites
 
-0. Box with latest version of [git](https://git-scm.com/) installed.
-1. Box with [netmiko 2.1.0](https://github.com/ktbyers/netmiko) installed (included in requirements.txt).
-2. Box with [colorama 0.3.9](https://pypi.python.org/pypi/colorama) installed (included in requirements.txt).
-3. SSH (TCP/22) reachability to devices.    
-4. Local username with privilege 15 (example: `user a.lambreca priv 15 secret cisco`).
-5. Alias command to save configuration: `alias exec wr copy run start`
+- SSH (TCP/22) reachability to devices.    
+- Local username with privilege 15 (example: `user a.lambreca priv 15 secret cisco`).
+- Alias command to save configuration: `alias exec wr copy run start`
 
 # Installation
 
@@ -77,6 +74,7 @@ pip install -r requirements.txt
         - If passwords match each other the script will continue to run
         - If password don't match each other you will get an error message `>> Passwords do not match. Try again. ` but the script will continue to run. Use Ctrl + C to cancel the script and run it again.
         
+        
 # 2nd argument (.json)
 
 - Create a csv file like this example:  
@@ -101,6 +99,7 @@ cisco_ios,2001:db8:acab:a001::130
 ```
 
 - Finally i copy/pasted the output into router/7200.json which is going to be used by cmdrunner.py as the <2nd_argument>.   
+
 
 # 3rd argument (.txt)
 
