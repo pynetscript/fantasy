@@ -3,11 +3,13 @@
 ###############################################################################
 # Written by:           Aleks Lambreca
 # Creation date:        05/04/2018
-# Last modified date:   05/04/2018
+# Last modified date:   15/04/2018
 # Version:              v1.1
 #
 # Script use:           SSH into Cisco IOS devices and run config/show commands
 #                       Note: Commands are send all at once (not one by one)
+#                             Should be used mostly for config commands
+#                             For show commands use "reality" script
 #                             Supports both IPv4 and IPv6 addresses and FQDNs
 #                             Both Py2 and Py3 compatible
 #                       The script needs 3 arguments to work:
@@ -17,7 +19,7 @@
 #                       Note: A full command looks like:
 #                       ./cmdrunner.py router/7200.json router/cmd.txt
 #
-# Script input:         SSH Username/Password
+# Script input:         Username/Password
 #                       Specify devices as a .json file
 #                       Note: See "router/7200.json" as an example
 #                       Specify show/config commands as a .txt file
@@ -26,7 +28,7 @@
 #
 # Script output:        Cisco IOS command output
 #                       Statistics
-#                       Erros in cmdrunner.log
+#                       Log erros in cmdrunner.log
 #                       Travis CI build notification to Slack private channel
 ###############################################################################
 
@@ -83,6 +85,7 @@ with open(sys.argv[1]) as dev_file:
     devices = json.load(dev_file)
 
 with open(sys.argv[2]) as cmd_file:
+    path = (sys.argv[2])
     commands = cmd_file.readlines()
 
     
@@ -94,18 +97,23 @@ def processor(device, output_q):
     device['username'] = username
     device['password'] = password
     try:
-        print('Connecting to device:', device['ip'])
-        print('-'*79)
+        current_timestamp = datetime.datetime.now()
+        current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
+        print(current_time, '- Connecting to device:', device['ip'])
 
         output_dict = {}
 
         # SSH into each device from "x.json" (2nd argument).
         connection = netmiko.ConnectHandler(**device)
 
-        # Get device's hostname.
+        print()
+        current_timestamp = datetime.datetime.now()
+        current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
+        print(current_time, '- Successfully connected -', device['ip'])
+        
+        # Get device's "hostname" from netmiko, and "ip" from .json
         hostname = connection.base_prompt
-        # Get device's "ip" from .json
-        json_ip = (device['ip'])
+        ip = (device['ip'])
 
         # Send all commands at once from "x.txt" to each device (3rd argument).
         # Put into "output". 
@@ -120,33 +128,37 @@ def processor(device, output_q):
             save_conf = connection.send_command_timing('')
         if 'Destination filename [startup-config]' in save_conf:
             save_conf = connection.send_command_timing('')
-        output += ('[' + hostname + ']' + '  ' + json_ip) + "\n"
+        output += ('[{0}] [{1}] >> write memory'.format(hostname, ip)) + "\n"
         output += ('') + "\n"
-        output += (Fore.RED + '>> write memory' + Style.RESET_ALL) + "\n"
-        output += (save_conf) + "\n"
-        output += ('-'*79) + "\n"
-
+        output += (save_conf)
+        
         # Put everything from "output" into "output_dict" in the format "[hostname]  IP".
-        output_dict['[' + hostname + ']' + '  ' + json_ip] = output
+        output_dict[Fore.WHITE + '='*79 + Style.RESET_ALL + '\n' + '[{0}] [{1}] >> '.format(hostname, ip) + path] = output
+        
         # Put "output_dict" into queue named "output_q".
         output_q.put(output_dict)
 
         # Disconnect SSH session.
         connection.disconnect()
 
+        
     except netmiko_ex_auth as ex_auth:
-        print('-'*79)
-        print(Fore.RED + device['ip'], '>> Authentication error' + Style.RESET_ALL)
+        print()
+        current_timestamp = datetime.datetime.now()
+        current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
+        print(Fore.RED + current_time, '- Authentication error -', device['ip'] + Style.RESET_ALL)
         # Log the error on the working directory in cmdrunner.log
         logger.warning(ex_auth)
-        print('-'*79)
+        print()
 
     except netmiko_ex_time as ex_time:
-        print('-'*79)
-        print(Fore.RED + device['ip'], '>> TCP/22 connectivity error' + Style.RESET_ALL)
+        print()
+        current_timestamp = datetime.datetime.now()
+        current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
+        print(Fore.RED + current_time, '- TCP/22 connectivity error -', device['ip'] + Style.RESET_ALL)
         # Log the error on the working directory in cmdrunner.log
         logger.warning(ex_time)
-        print('-'*79)
+        print()
 
 
 def main():
@@ -154,7 +166,6 @@ def main():
     start_timestamp = datetime.datetime.now()
     start_time = start_timestamp.strftime('%d/%m/%Y %H:%M:%S')
     
-    # Queue used in line 136.
     output_q = Queue(maxsize=40)
 
     # Use processes and run the "processor" function. 
