@@ -7,11 +7,13 @@
 ```
 Written by:           Aleks Lambreca
 Creation date:        05/04/2018
-Last modified date:   05/04/2018
+Last modified date:   15/04/2018
 Version:              v1.1
 
 Script use:           SSH into Cisco IOS devices and run config/show commands
                       Note: Commands are send all at once (not one by one)
+                            Should be used mostly for config commands.
+                            For show commands use "reality" script.
                             Supports both IPv4 and IPv6 addresses and FQDNs
                             Both Py2 and Py3 compatible
                       The script needs 3 arguments to work:
@@ -21,7 +23,7 @@ Script use:           SSH into Cisco IOS devices and run config/show commands
                       Note: A full command looks like:
                       ./cmdrunner.py router/7200.json router/cmd.txt
 
-Script input:         SSH Username/Password
+Script input:         Username/Password
                       Specify devices as a .json file
                       Note: See "router/7200.json" as an example
                       Specify show/config commands as a .txt file
@@ -30,7 +32,7 @@ Script input:         SSH Username/Password
 
 Script output:        Cisco IOS command output
                       Statistics
-                      Erros in cmdrunner.log
+                      Log erros in cmdrunner.log
                       Travis CI build notification to Slack private channel
 ```
 
@@ -39,6 +41,7 @@ Script output:        Cisco IOS command output
 - SSH (TCP/22) reachability to devices.    
 - Local username with privilege 15 (example: `user a.lambreca priv 15 secret cisco`).
 - Alias command to save configuration: `alias exec wr copy run start`
+
 
 # Installation
 
@@ -140,7 +143,7 @@ Then the script will:
   - Define a queue with size of 40
   - Use multiple processors and run the ` processor(device, output_q)` function: 
     - SSH to all the devices at once in the <2nd_argument> (.json)    
-    - Get devices` hostname.
+    - Get devices` "hostname" from netmiko.
     - Get devices` "ip" from .json
     - Run all the commands at once found in the <3rd argument> (.txt) - put into variable "output".
     - Save the running-config to startup-config - put into variable "output". 
@@ -148,9 +151,9 @@ Then the script will:
     - Put "output_dict" into queue named "output_q".
     - Disconnect the SSH sessions.  
     - Errors:
-      - If the is an authentication error we will get an error message `R1.a-corp.com >> Authentication error`
-      - If the is an connectivity (TCP/22) error we will get an error message `192.168.1.120 >> TCP/22 connectivity error`
-      - Errors are logged in the cmdrunner.log
+      - If the is an authentication error we will get an error message `15/04/2018 16:52:07 - Authentication error - r1.a-corp.com`
+      - If the is an connectivity (TCP/22) error we will get an error message `15/04/2018 16:52:22 - TCP/22 connectivity error - 192.168.1.120`
+      - Errors are logged in cmdrunner.log
   - Makes sure all processes have finished
   - Uses a queue to pass the output back to the parent process.
   - Timestamp the date & time the script ended in D/M/Y H:M:S format.
@@ -161,28 +164,32 @@ Then the script will:
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           05/04/2018 21:31:43                               |
-| Script ended:             05/04/2018 21:32:14                               |
-| Script duration (h:m:s):  0:00:30                                           |
+| Script started:           15/04/2018 16:42:34                               |
+| Script ended:             15/04/2018 16:43:02                               |
+| Script duration (h:m:s):  0:00:28                                           |
 +-----------------------------------------------------------------------------+
 ```
 
 # Successful demo
 
 ```
-aleks@acorp:~/fantasy$ ./cmdrunner.py router/7200.json router/cmd.txt 
+aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt
 ===============================================================================
 Username: a.lambreca
 Password: 
 Retype password: 
 ===============================================================================
-Connecting to device: r1.a-corp.com
--------------------------------------------------------------------------------
-Connecting to device: 192.168.1.120
--------------------------------------------------------------------------------
-Connecting to device: 2001:db8:acab:a001::130
--------------------------------------------------------------------------------
-[R2]  192.168.1.120
+15/04/2018 16:42:34 - Connecting to device: r1.a-corp.com
+15/04/2018 16:42:34 - Connecting to device: 192.168.1.120
+15/04/2018 16:42:34 - Connecting to device: 2001:db8:acab:a001::130
+
+15/04/2018 16:42:40 - Successfully connected - 192.168.1.120
+
+15/04/2018 16:42:40 - Successfully connected - r1.a-corp.com
+
+15/04/2018 16:42:40 - Successfully connected - 2001:db8:acab:a001::130
+===============================================================================
+[R2] [192.168.1.120] >> router/cmd.txt
 
 config term
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -192,14 +199,12 @@ R2(config-router)# passive-interface default
 R2(config-router)#end
 R2#
 -------------------------------------------------------------------------------
-[R2]  192.168.1.120
+[R2] [192.168.1.120] >> write memory
 
->> write memory
 Building configuration...
-[OK]
--------------------------------------------------------------------------------
 
-[R3]  2001:db8:acab:a001::130
+===============================================================================
+[R3] [2001:db8:acab:a001::130] >> router/cmd.txt
 
 config term
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -209,14 +214,12 @@ R3(config-router)# passive-interface default
 R3(config-router)#end
 R3#
 -------------------------------------------------------------------------------
-[R3]  2001:db8:acab:a001::130
+[R3] [2001:db8:acab:a001::130] >> write memory
 
->> write memory
 Building configuration...
-[OK]
--------------------------------------------------------------------------------
 
-[R1]  r1.a-corp.com
+===============================================================================
+[R1] [r1.a-corp.com] >> router/cmd.txt
 
 config term
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -226,20 +229,17 @@ R1(config-router)# passive-interface default
 R1(config-router)#end
 R1#
 -------------------------------------------------------------------------------
-[R1]  r1.a-corp.com
+[R1] [r1.a-corp.com] >> write memory
 
->> write memory
 Building configuration...
 [OK]
--------------------------------------------------------------------------------
-
 ===============================================================================
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           05/04/2018 21:31:43                               |
-| Script ended:             05/04/2018 21:32:14                               |
-| Script duration (h:m:s):  0:00:30                                           |
+| Script started:           15/04/2018 16:42:34                               |
+| Script ended:             15/04/2018 16:43:02                               |
+| Script duration (h:m:s):  0:00:28                                           |
 +-----------------------------------------------------------------------------+
 ```
 
@@ -250,22 +250,25 @@ Building configuration...
 - R3 (2001:db8:acab:a001::130): This router is configured correctly.
 
 ```
-aleks@acorp:~/fantasy$ ./cmdrunner.py router/7200.json router/cmd.txt  
+aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt
 ===============================================================================
 Username: a.lambreca
 Password: 
 Retype password: 
 ===============================================================================
-Connecting to device: r1.a-corp.com
-Connecting to device: 192.168.1.120
-Connecting to device: 2001:db8:acab:a001::130
--------------------------------------------------------------------------------
-192.168.1.120 >> TCP/22 connectivity error
--------------------------------------------------------------------------------
--------------------------------------------------------------------------------
-r1.a-corp.com >> Authentication error
--------------------------------------------------------------------------------
-[R3]  2001:db8:acab:a001::130
+15/04/2018 16:52:04 - Connecting to device: r1.a-corp.com
+15/04/2018 16:52:04 - Connecting to device: 192.168.1.120
+15/04/2018 16:52:04 - Connecting to device: 2001:db8:acab:a001::130
+
+15/04/2018 16:52:07 - Authentication error - r1.a-corp.com
+
+
+15/04/2018 16:52:10 - Successfully connected - 2001:db8:acab:a001::130
+
+15/04/2018 16:52:22 - TCP/22 connectivity error - 192.168.1.120
+
+===============================================================================
+[R3] [2001:db8:acab:a001::130] >> router/cmd.txt
 
 config term
 Enter configuration commands, one per line.  End with CNTL/Z.
@@ -275,19 +278,16 @@ R3(config-router)# passive-interface default
 R3(config-router)#end
 R3#
 -------------------------------------------------------------------------------
-[R3]  2001:db8:acab:a001::130
+[R3] [2001:db8:acab:a001::130] >> write memory
 
->> write memory
 Building configuration...
 [OK]
--------------------------------------------------------------------------------
-
 ===============================================================================
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           05/04/2018 21:28:06                               |
-| Script ended:             05/04/2018 21:28:31                               |
+| Script started:           15/04/2018 16:52:04                               |
+| Script ended:             15/04/2018 16:52:29                               |
 | Script duration (h:m:s):  0:00:25                                           |
 +-----------------------------------------------------------------------------+
 ```
@@ -295,7 +295,7 @@ Building configuration...
 # cmdrunner.log
 
 ```
-05/04/2018 21:28:10 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
+15/04/2018 16:52:07 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
 Authentication failed.
-05/04/2018 21:28:12 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
+15/04/2018 16:52:22 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
 ```
