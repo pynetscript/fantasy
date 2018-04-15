@@ -75,7 +75,7 @@ pip install -r requirements.txt
     - Prompts for username
     - Prompts for password twice but doesn't show it on screen (getpass)
         - If passwords match each other the script will continue to run
-        - If password don't match each other you will get an error message `>> Passwords do not match. Try again. ` but the script will continue to run. Use Ctrl + C to cancel the script and run it again.
+        - If password don't match each other we will get an error message >> Passwords do not match. Please try again. and the script will prompt us again until passwords match each other.
         
         
 # 2nd argument (.json)
@@ -107,7 +107,7 @@ cisco_ios,2001:db8:acab:a001::130
 # 3rd argument (.txt)
 
 Create a txt file with the config/show commands that you want to run on the devices:    
-Note: Show commands need "do" in the front.
+**Note**: Show commands need "do" in the front.
 
 ```
 router ospf 1
@@ -118,6 +118,7 @@ router ospf 1
 # 1st argument (cmdrunner.py)
 
 This is the main script that we will run.   
+
 Legal examples:   
 - `python2 <1st_argument> <2nd_argument> <3rd_argument>`
 - `python3 <1st_argument> <2nd_argument> <3rd_argument>`
@@ -143,11 +144,11 @@ Then the script will:
   - Define a queue with size of 40
   - Use multiple processors and run the ` processor(device, output_q)` function: 
     - SSH to all the devices at once in the <2nd_argument> (.json)    
-    - Get devices` "hostname" from netmiko.
-    - Get devices` "ip" from .json
+    - Get device's "hostname" from netmiko.
+    - Get device's "ip" from .json
     - Run all the commands at once found in the <3rd argument> (.txt) - put into variable "output".
     - Save the running-config to startup-config - put into variable "output". 
-    - Put everything from variable "output" into "output_dict" in the format "[hostname]  IP".
+    - Put everything from variable "output" into "output_dict".
     - Put "output_dict" into queue named "output_q".
     - Disconnect the SSH sessions.  
     - Errors:
