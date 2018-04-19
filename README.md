@@ -4,34 +4,31 @@
 
 # fantasy
 
-```
-Written by:           Aleks Lambreca
-Creation date:        05/04/2018
-Last modified date:   15/04/2018
-Version:              v1.1
 
-Script use:           SSH into Cisco IOS devices and run config commands
-                      Note: Commands are send all at once (not one by one)
-                            Supports both IPv4 and IPv6 addresses and FQDNs
-                            Both Py2 and Py3 compatible
-                      The script needs 3 arguments to work:
-                      - 1st argument: cmdrunner.py
-                      - 2nd argument: /x.json
-                      - 3rd argument: /x.txt
-                      Note: A full command looks like:
-                      ./cmdrunner.py router/7200.json router/cmd.txt
+### Script use           
+- SSH into Cisco IOS devices and run config commands
+  - Commands are send all at once (not one by one)
+  - Supports both IPv4 and IPv6 addresses and FQDNs
+  - Both Py2 and Py3 compatible
+- The script needs 3 arguments to work:
+  - 1st argument: `cmdrunner.py`
+  - 2nd argument: `/x.json`
+  - 3rd argument: `/x.txt`
+    - A full command looks like: `./cmdrunner.py router/7200.json router/cmd.txt`
 
-Script input:         Username/Password
-                      Specify devices as a .json file
-                      Note: See "router/7200.json" as an example
-                      Specify show/config commands as a .txt file
-                      Note: See "router/cmd.txt" as an example   
+### Script input     
+- Username/Password
+- Specify devices as a .json file
+  - See `router/7200.json` as an example
+- Specify config commands as a .txt file
+  - See `router/cmd.txt` as an example   
 
-Script output:        Cisco IOS command output
-                      Statistics
-                      Log erros in cmdrunner.log
-                      Travis CI build notification to Slack private channel
-```
+### Script output
+- Cisco IOS command output
+- Statistics
+- Log erros in `cmdrunner.log`
+- Travis CI build notification to Slack private channel
+
 
 # Prerequisites
 
@@ -44,6 +41,7 @@ Script output:        Cisco IOS command output
 
 ```
 mkdir /fantasy/ && cd /fantasy/
+sudo apt-get install -y python-pip
 sudo apt-get install -y git
 git clone -b https://github.com/pynetscript/fantasy.git . 
 pip install -r requirements.txt
