@@ -16,7 +16,8 @@
   - 3rd argument: `/x.txt`
     - A full command looks like: `./cmdrunner.py router/7200.json router/cmd.txt`
 
-### Script input     
+### Script input    
+- Change Control/Ticket ID
 - Username/Password
 - Specify devices as a .json file
   - See `router/7200.json` as an example
@@ -26,14 +27,14 @@
 ### Script output
 - Cisco IOS command output
 - Statistics
-- Log erros in `cmdrunner.log`
+- Log success/erros in `cmdrunner.log`
 - Travis CI build notification to Slack private channel
 
 
 # Prerequisites
 
 - SSH (TCP/22) reachability to devices.    
-- Local username with privilege 15 (example: `user a.lambreca priv 15 secret cisco`).
+- Username with privilege 15 (example: `user a.lambreca priv 15 secret cisco`).
 - Alias command to save configuration: `alias exec wr copy run start`
 
 
@@ -65,12 +66,12 @@ pip install -r requirements.txt
 - tools.py is going to be imported on our main script (cmdrunner.py).
 - This way we have a cleaner main script.
 - Function (get_input)
-    - Get input that is both Py2 and Py3 compatible
+  - Get input that is both Py2 and Py3 compatible
 - Function (get_credentials) 
-    - Prompts for username
-    - Prompts for password twice but doesn't show it on screen (getpass)
-        - If passwords match each other the script will continue to run
-        - If password don't match each other we will get an error message >> Passwords do not match. Please try again. and the script will prompt us again until passwords match each other.
+  - Prompts for username
+  - Prompts for password twice but doesn't show it on screen (getpass)
+    - If passwords match each other the script will continue to run
+    - If password don't match each other we will get an error message `>> Passwords do not match. Please try again. ` and the script will prompt us again until passwords match each other.
         
         
 # 2nd argument (.json)
@@ -122,7 +123,9 @@ Let's use the following example to explain the script:
 
 First the script will:     
 - Create a log file named "cmdrunner.log".
-- Prompt us for a username and a password (password required twice).
+- Prompt us for Change Control/Ticket ID.
+- Prompt us for a username and a password
+  - For more information on password part look "Function (get_credentials)" at **tools.py** section.
 
 ```
 ===============================================================================
@@ -134,20 +137,24 @@ Retype password:
   
 Then the script will:    
 - Run `main()` function:
-  - Timestamp the date & time the script started in D/M/Y H:M:S format
-  - Define a queue with size of 40
+  - Timestamp the date & time the script started in D/M/Y H:M:S format.
+  - Define a queue with size of 40.
   - Use multiple processors and run the ` processor(device, output_q)` function: 
-    - SSH to all the devices at once in the <2nd_argument> (.json)    
+    - SSH to all the devices at once in the <2nd_argument> (.json)
+      - Log the successful connection in cmdrunner.log
+    - Send "log" command to log "begin timestamp" & "Change Control/Ticket ID" locally on the device.
     - Get device's "hostname" from netmiko.
     - Get device's "ip" from .json
     - Run all the commands at once found in the <3rd argument> (.txt) - put into variable "output".
     - Save the running-config to startup-config - put into variable "output". 
     - Put everything from variable "output" into "output_dict".
     - Put "output_dict" into queue named "output_q".
-    - Disconnect the SSH sessions.  
+    - Send "log" command to log "end timestamp" & "Change Control/Ticket ID" locally on the device.
+    - Disconnect the SSH sessions.
+    - Log the successful configuration in cmdrunner.log
     - Errors:
-      - If the is an authentication error we will get an error message `15/04/2018 16:52:07 - Authentication error - r1.a-corp.com`
-      - If the is an connectivity (TCP/22) error we will get an error message `15/04/2018 16:52:22 - TCP/22 connectivity error - 192.168.1.120`
+      - If the is an authentication error we will get an error message `23/04/2018 19:38:20 - Authentication error: r1.a-corp.com`
+      - If the is an connectivity (TCP/22) error we will get an error message `23/04/2018 19:38:34 - TCP/22 connectivity error: 192.168.1.120`
       - Errors are logged in cmdrunner.log
   - Makes sure all processes have finished
   - Uses a queue to pass the output back to the parent process.
@@ -159,45 +166,32 @@ Then the script will:
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           15/04/2018 16:42:34                               |
-| Script ended:             15/04/2018 16:43:02                               |
-| Script duration (h:m:s):  0:00:28                                           |
+| Change Control/Ticket:   11111                                              |
+| Script started:          23/04/2018 19:36:26                                |
+| Script ended:            23/04/2018 19:36:56                                |
+| Script duration (h:m:s): 0:00:30                                            |
 +-----------------------------------------------------------------------------+
 ```
 
-# Successful demo
+# cmdrunner.py (unsuccessful)
 
 ```
-aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt
+aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt 
 ===============================================================================
+Change Control/Ticket: 11111
 Username: a.lambreca
 Password: 
 Retype password: 
 ===============================================================================
-15/04/2018 16:42:34 - Connecting to device: r1.a-corp.com
-15/04/2018 16:42:34 - Connecting to device: 192.168.1.120
-15/04/2018 16:42:34 - Connecting to device: 2001:db8:acab:a001::130
+23/04/2018 19:36:26 - Connecting to device: r1.a-corp.com
+23/04/2018 19:36:26 - Connecting to device: 192.168.1.120
+23/04/2018 19:36:26 - Connecting to device: 2001:db8:acab:a001::130
 
-15/04/2018 16:42:40 - Successfully connected - 192.168.1.120
+23/04/2018 19:36:33 - Connection to device successful: 192.168.1.120
 
-15/04/2018 16:42:40 - Successfully connected - r1.a-corp.com
+23/04/2018 19:36:33 - Connection to device successful: 2001:db8:acab:a001::130
 
-15/04/2018 16:42:40 - Successfully connected - 2001:db8:acab:a001::130
-===============================================================================
-[R2] [192.168.1.120] >> router/cmd.txt
-
-config term
-Enter configuration commands, one per line.  End with CNTL/Z.
-R2(config)#router ospf 1
-R2(config-router)# network 0.0.0.0 255.255.255.255 area 0
-R2(config-router)# passive-interface default
-R2(config-router)#end
-R2#
--------------------------------------------------------------------------------
-[R2] [192.168.1.120] >> write memory
-
-Building configuration...
-
+23/04/2018 19:36:33 - Connection to device successful: r1.a-corp.com
 ===============================================================================
 [R3] [2001:db8:acab:a001::130] >> router/cmd.txt
 
@@ -213,6 +207,22 @@ R3#
 
 Building configuration...
 
+===============================================================================
+[R2] [192.168.1.120] >> router/cmd.txt
+
+config term
+Enter configuration commands, one per line.  End with CNTL/Z.
+R2(config)#router ospf 1
+R2(config-router)# network 0.0.0.0 255.255.255.255 area 0
+R2(config-router)# passive-interface default
+R2(config-router)#end
+R2#
+-------------------------------------------------------------------------------
+[R2] [192.168.1.120] >> write memory
+
+
+Building configuration...
+[OK]
 ===============================================================================
 [R1] [r1.a-corp.com] >> router/cmd.txt
 
@@ -232,35 +242,55 @@ Building configuration...
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           15/04/2018 16:42:34                               |
-| Script ended:             15/04/2018 16:43:02                               |
-| Script duration (h:m:s):  0:00:28                                           |
+| Change Control/Ticket:   11111                                              |
+| Script started:          23/04/2018 19:36:26                                |
+| Script ended:            23/04/2018 19:36:56                                |
+| Script duration (h:m:s): 0:00:30                                            |
 +-----------------------------------------------------------------------------+
 ```
 
-# Unsuccessful demo
+### syslog (successful)
+
+```
+*Apr 23 2018 19:36:33: %SYS-6-USERLOG_INFO: Message from tty2(user id: a.lambreca): "Begin Change Control/Ticket: 11111"
+*Apr 23 2018 19:36:53: %SYS-6-USERLOG_INFO: Message from tty2(user id: a.lambreca): "End Change Control/Ticket: 11111"
+```
+
+### cmdrunner.log (successful)
+
+```
+23/04/2018 19:36:33 - INFO - Connection to device successful: 192.168.1.120
+23/04/2018 19:36:33 - INFO - Connection to device successful: 2001:db8:acab:a001::130
+23/04/2018 19:36:33 - INFO - Connection to device successful: r1.a-corp.com
+23/04/2018 19:36:53 - INFO - Configuration to device successful: 2001:db8:acab:a001::130
+23/04/2018 19:36:56 - INFO - Configuration to device successful: 192.168.1.120
+23/04/2018 19:36:56 - INFO - Configuration to device successful: r1.a-corp.com
+```
+
+# cmdrunner.py (unsuccessful)
 
 - R1 (r1.a-corp.com): I have misconfigured authentication.
 - R2 (192.168.1.120): I have no SSH (TCP/22) reachability.
 - R3 (2001:db8:acab:a001::130): This router is configured correctly.
 
 ```
-aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt
+aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt 
 ===============================================================================
+Change Control/Ticket: 22222
 Username: a.lambreca
 Password: 
 Retype password: 
 ===============================================================================
-15/04/2018 16:52:04 - Connecting to device: r1.a-corp.com
-15/04/2018 16:52:04 - Connecting to device: 192.168.1.120
-15/04/2018 16:52:04 - Connecting to device: 2001:db8:acab:a001::130
+23/04/2018 19:38:16 - Connecting to device: r1.a-corp.com
+23/04/2018 19:38:16 - Connecting to device: 192.168.1.120
+23/04/2018 19:38:16 - Connecting to device: 2001:db8:acab:a001::130
 
-15/04/2018 16:52:07 - Authentication error - r1.a-corp.com
+23/04/2018 19:38:20 - Authentication error: r1.a-corp.com
 
 
-15/04/2018 16:52:10 - Successfully connected - 2001:db8:acab:a001::130
+23/04/2018 19:38:22 - Connection to device successful: 2001:db8:acab:a001::130
 
-15/04/2018 16:52:22 - TCP/22 connectivity error - 192.168.1.120
+23/04/2018 19:38:34 - TCP/22 connectivity error: 192.168.1.120
 
 ===============================================================================
 [R3] [2001:db8:acab:a001::130] >> router/cmd.txt
@@ -281,16 +311,27 @@ Building configuration...
 +-----------------------------------------------------------------------------+
 |                              SCRIPT STATISTICS                              |
 |-----------------------------------------------------------------------------|
-| Script started:           15/04/2018 16:52:04                               |
-| Script ended:             15/04/2018 16:52:29                               |
-| Script duration (h:m:s):  0:00:25                                           |
+| Change Control/Ticket:   22222                                              |
+| Script started:          23/04/2018 19:38:16                                |
+| Script ended:            23/04/2018 19:38:43                                |
+| Script duration (h:m:s): 0:00:26                                            |
 +-----------------------------------------------------------------------------+
 ```
 
-# cmdrunner.log
+
+### syslog (unsuccessful)
 
 ```
-15/04/2018 16:52:07 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
+*Apr 23 2018 19:38:23: %SYS-6-USERLOG_INFO: Message from tty2(user id: a.lambreca): "Begin Change Control/Ticket: 22222"
+*Apr 23 2018 19:38:40: %SYS-6-USERLOG_INFO: Message from tty2(user id: a.lambreca): "End Change Control/Ticket: 22222"
+```
+
+### cmdrunner.log (unsuccessful)
+
+```
+23/04/2018 19:38:20 - WARNING - Authentication failure: unable to connect cisco_ios r1.a-corp.com:22
 Authentication failed.
-15/04/2018 16:52:22 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
+23/04/2018 19:38:22 - INFO - Connection to device successful: 2001:db8:acab:a001::130
+23/04/2018 19:38:34 - WARNING - Connection to device timed-out: cisco_ios 192.168.1.120:22
+23/04/2018 19:38:43 - INFO - Configuration to device successful: 2001:db8:acab:a001::130
 ```
