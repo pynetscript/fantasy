@@ -175,7 +175,7 @@ Then the script will:
 +-----------------------------------------------------------------------------+
 ```
 
-# cmdrunner.py (unsuccessful)
+# cmdrunner.py (successful)
 
 ```
 aleks@acorp:~/fantasy$ python3 cmdrunner.py router/7200.json router/cmd.txt 
