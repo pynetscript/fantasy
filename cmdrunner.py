@@ -48,9 +48,7 @@ import os
 import re
 
 from multiprocessing import Process, Queue
-from colorama import init
-from colorama import Fore
-from colorama import Style
+from colorama import Fore, Style
 
 # Local modules
 import tools
