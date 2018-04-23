@@ -73,6 +73,18 @@ pip install -r requirements.txt
     - If passwords match each other the script will continue to run
     - If password don't match each other we will get an error message `>> Passwords do not match. Please try again. ` and the script will prompt us again until passwords match each other.
         
+
+
+# 3rd argument (.txt)
+
+Create a txt file with the config commands that you want to run on the devices:    
+
+```
+router ospf 1
+ network 0.0.0.0 255.255.255.255 area 0
+ passive-interface default
+```
+
         
 # 2nd argument (.json)
 
@@ -99,16 +111,6 @@ cisco_ios,2001:db8:acab:a001::130
 
 - Finally i copy/pasted the output into router/7200.json which is going to be used by cmdrunner.py as the <2nd_argument>.   
 
-
-# 3rd argument (.txt)
-
-Create a txt file with the config commands that you want to run on the devices:    
-
-```
-router ospf 1
- network 0.0.0.0 255.255.255.255 area 0
- passive-interface default
-```
 
 # 1st argument (cmdrunner.py)
 
