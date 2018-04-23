@@ -3,7 +3,7 @@
 ###############################################################################
 # Written by:           Aleks Lambreca
 # Creation date:        05/04/2018
-# Last modified date:   15/04/2018
+# Last modified date:   23/04/2018
 # Version:              v1.1
 #
 # Script use:           SSH into Cisco IOS devices and run config commands
@@ -17,7 +17,8 @@
 #                       Note: A full command looks like:
 #                       ./cmdrunner.py router/7200.json router/cmd.txt
 #
-# Script input:         Username/Password
+# Script input:         Change Control/Ticket ID
+#                       Username/Password
 #                       Specify devices as a .json file
 #                       Note: See "router/7200.json" as an example
 #                       Specify show/config commands as a .txt file
@@ -25,7 +26,7 @@
 #
 # Script output:        Cisco IOS command output
 #                       Statistics
-#                       Log erros in cmdrunner.log
+#                       Log success/erros in cmdrunner.log
 #                       Travis CI build notification to Slack private channel
 ###############################################################################
 
@@ -34,9 +35,6 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
-from colorama import init
-from colorama import Fore
-from colorama import Style
 
 # Standard library modules
 import netmiko
@@ -47,7 +45,12 @@ import datetime
 import time
 import logging
 import os
+import re
+
 from multiprocessing import Process, Queue
+from colorama import init
+from colorama import Fore
+from colorama import Style
 
 # Local modules
 import tools
@@ -74,10 +77,10 @@ netmiko_ex_auth = (netmiko.ssh_exception.NetMikoAuthenticationException)
 
 # If arguments not equal to 3 we get an error.
 if len(sys.argv) != 3:
-    print('>> Usage: cmdrunner.py /x.json /x.txt')
+    print('>> Usage:', sys.argv[0].split('/')[-1], '/x.json /x.txt')
     exit()
 
-
+    
 with open(sys.argv[1]) as dev_file:
     devices = json.load(dev_file)
 
@@ -85,6 +88,11 @@ with open(sys.argv[2]) as cmd_file:
     path = (sys.argv[2])
     commands = cmd_file.readlines()
 
+    
+# Prompt for Change Control/Ticket ID
+print(Fore.WHITE + '='*79 + Style.RESET_ALL)
+cc = tools.get_input('Change Control/Ticket: ')
+    
     
 # Prompt for username and password
 username, password = tools.get_credentials()
@@ -106,12 +114,23 @@ def processor(device, output_q):
         print()
         current_timestamp = datetime.datetime.now()
         current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
-        print(current_time, '- Successfully connected -', device['ip'])
+        success_connected = (current_time, '- Connection to device successful:', device['ip'])
+        success_connected_str = ' '.join(success_connected)
+        print(success_connected_str)
+        
+        # Log the successful connection on the working directory in "cmdrunner.log".
+        # Parse out the date & time.
+        regex = r'(\d+/\d+/\d+\s+\d+:\d+:\d+\s+-\s+)(.*)'
+        m_conn = re.match(regex, success_connected_str)
+        logger.info(m_conn.group(2))
         
         # Get device's "hostname" from netmiko, and "ip" from .json
         hostname = connection.base_prompt
         ip = (device['ip'])
 
+        # Log "start" locally on the device.
+        connection.send_command('send log 6 "Begin Change Control/Ticket: {}"'.format(cc))
+        
         # Send all commands at once from "x.txt" to each device (3rd argument).
         # Put into "output". 
         output = ('') + "\n"
@@ -135,15 +154,24 @@ def processor(device, output_q):
         # Put "output_dict" into queue named "output_q".
         output_q.put(output_dict)
 
+        
+        # Log "end" locally on the device.
+        connection.send_command('send log 6 "End Change Control/Ticket: {}"'.format(cc))
+        
         # Disconnect SSH session.
         connection.disconnect()
 
+        # Log the successful configuration on the working directory in cmdrunner.log
+        success_configured = ('Configuration to device successful:', device['ip'])
+        success_configured_str = ' '.join(success_configured)
+        logger.info(success_configured_str)
+        
         
     except netmiko_ex_auth as ex_auth:
         print()
         current_timestamp = datetime.datetime.now()
         current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
-        print(Fore.RED + current_time, '- Authentication error -', device['ip'] + Style.RESET_ALL)
+        print(Fore.RED + current_time, '- Authentication error:', device['ip'] + Style.RESET_ALL)
         # Log the error on the working directory in cmdrunner.log
         logger.warning(ex_auth)
         print()
@@ -152,7 +180,7 @@ def processor(device, output_q):
         print()
         current_timestamp = datetime.datetime.now()
         current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
-        print(Fore.RED + current_time, '- TCP/22 connectivity error -', device['ip'] + Style.RESET_ALL)
+        print(Fore.RED + current_time, '- TCP/22 connectivity error:', device['ip'] + Style.RESET_ALL)
         # Log the error on the working directory in cmdrunner.log
         logger.warning(ex_time)
         print()
@@ -191,11 +219,17 @@ def main():
     total_time = end_timestamp - start_timestamp
     total_time = str(total_time).split(".")[0]
 
+    # Count how many chars is Change Control/Ticket and subtract 50 from it.
+    # Result (rest) used in SCRIPT STATISTICS
+    cc_counter = tools.count_letters(cc)
+    rest = 50 - cc_counter
+    
     # SCRIPT STATISTICS
     print(Fore.WHITE + '='*79 + Style.RESET_ALL)
     print("+" + "-"*77 + "+")
     print("|" + " "*30 + "SCRIPT STATISTICS" +       " "*30 + "|")
     print("|" + "-"*77 + "|")
+    print("| Change Control/Ticket:  ", cc,          " "*rest + "|")
     print("| Script started:          ", start_time, " "*30 + "|")
     print("| Script ended:            ", end_time,   " "*30 + "|")
     print("| Script duration (h:m:s): ", total_time, " "*42 + "|")
