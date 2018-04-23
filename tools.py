@@ -10,9 +10,7 @@ from __future__ import division
 from __future__ import print_function
 
 # Standard library modules
-from colorama import init
-from colorama import Fore
-from colorama import Style
+from colorama import Fore, Style
 from getpass import getpass
 from collections import Counter
 
