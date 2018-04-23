@@ -155,8 +155,8 @@ Then the script will:
     - Disconnect the SSH sessions.
     - Log the successful configuration in cmdrunner.log
     - Errors:
-      - If the is an authentication error we will get an error message `23/04/2018 19:38:20 - Authentication error: r1.a-corp.com`
-      - If the is an connectivity (TCP/22) error we will get an error message `23/04/2018 19:38:34 - TCP/22 connectivity error: 192.168.1.120`
+      - If there is an authentication error we will get an error message `23/04/2018 19:38:20 - Authentication error: r1.a-corp.com`
+      - If there is a connectivity (TCP/22) error we will get an error message `23/04/2018 19:38:34 - TCP/22 connectivity error: 192.168.1.120`
       - Errors are logged in cmdrunner.log
   - Makes sure all processes have finished
   - Uses a queue to pass the output back to the parent process.
