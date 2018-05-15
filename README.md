@@ -1,6 +1,6 @@
 [![Build Status](https://travis-ci.org/pynetscript/fantasy.svg?branch=master)](https://travis-ci.org/pynetscript/fantasy)
 [![GitHub release](https://img.shields.io/badge/version-1.1-blue.svg)](https://github.com/pynetscript/fantasy)
-[![license](https://img.shields.io/github/license/pynetscript/fantasy.svg)](https://github.com/pynetscript/fantasy/blob/master/LICENSE)
+
 
 # fantasy
 
