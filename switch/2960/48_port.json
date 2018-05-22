@@ -1,7 +1,7 @@
-[{"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-3F-IDF4-ASW4.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-4F-IDF5-ASW5.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-5F-IDF6-ASW6.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-6F-IDF7-ASW7.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-7F-IDF8-ASW8.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-8F-IDF8-ASW9.a-corp.com"},
- {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATH-8F-IDF9-ASW10.a-corp.com"}]
+[{"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF4-ASW4.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF5-ASW5.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF6-ASW6.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF7-ASW7.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF8-ASW8.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF8-ASW9.a-corp.com"},
+ {"device_type":"cisco_ios","ip":"ACORP-EU-GR-ATHENS-IDF9-ASW10.a-corp.com"}]
