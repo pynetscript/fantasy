@@ -1,2 +1,2 @@
-[{"device_type":"cisco_asa","ip":"fw1.a-corp.com"},
-{"device_type":"cisco_asa","ip":"fw2.a-corp.com"}]
+[{"device_type":"cisco_asa","ip":"ACORP-HQ-EU-GR-ATHENS-DC-FW2.a-corp.com"},
+{"device_type":"cisco_asa","ip":"ACORP-HQ-EU-GR-ATHENS-DC-FW2.a-corp.com"}]
