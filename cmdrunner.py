@@ -3,7 +3,7 @@
 ###############################################################################
 # Written by:           Aleks Lambreca
 # Creation date:        05/04/2018
-# Last modified date:   23/04/2018
+# Last modified date:   05/08/2018
 # Version:              v1.1
 #
 # Script use:           SSH into Cisco IOS devices and run config commands
@@ -114,7 +114,7 @@ def processor(device, output_q):
         current_time = current_timestamp.strftime('%d/%m/%Y %H:%M:%S')
         success_connected = (current_time, '- Connection to device successful:', device['ip'])
         success_connected_str = ' '.join(success_connected)
-        print(success_connected_str)
+        print(Fore.GREEN + success_connected_str + Style.RESET_ALL)
         
         # Log the successful connection on the working directory in "cmdrunner.log".
         # Parse out the date & time.
