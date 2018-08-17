@@ -1,0 +1,2 @@
+do sh ip route | b Gate
+do sh clock
